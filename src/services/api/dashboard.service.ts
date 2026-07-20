@@ -1,6 +1,6 @@
 import apiClient from "@/services/axios";
 import type { ApiResponse } from "@/types/api";
-import type { DashboardOverview, AnalyticsData, AnalyticsRange } from "@/types/dashboard";
+import type { DashboardOverview, AnalyticsBucket, AnalyticsRange } from "@/types/dashboard";
 
 // ─── GET /api/dashboard/overview ─────────────────────────────────────────
 export async function getDashboardOverview(): Promise<DashboardOverview> {
@@ -13,8 +13,8 @@ export async function getDashboardOverview(): Promise<DashboardOverview> {
 // ─── GET /api/dashboard/analytics?range=daily|weekly|monthly|yearly ───────
 export async function getDashboardAnalytics(
   range: AnalyticsRange = "daily"
-): Promise<AnalyticsData> {
-  const response = await apiClient.get<ApiResponse<AnalyticsData>>(
+): Promise<AnalyticsBucket[]> {
+  const response = await apiClient.get<ApiResponse<AnalyticsBucket[]>>(
     "/dashboard/analytics",
     { params: { range } }
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -36,23 +36,20 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const { user, isAuthenticated, isLoading } = useAuth();
   const pathname = usePathname();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 12);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [pathname]);
 
   async function handleSignOut() {
     await signOut({
@@ -106,7 +103,7 @@ export function Navbar() {
 
           {/* Desktop Nav Links */}
           <div className="hidden md:flex items-center gap-1">
-            {(isAuthenticated ? AUTH_NAV_LINKS : PUBLIC_NAV_LINKS).map(
+            {(!mounted ? PUBLIC_NAV_LINKS : (isAuthenticated ? AUTH_NAV_LINKS : PUBLIC_NAV_LINKS)).map(
               (link) => (
                 <Link
                   key={link.href}
@@ -171,7 +168,7 @@ export function Navbar() {
             )}
 
             {/* Auth section - Desktop */}
-            {!isLoading && (
+            {mounted && !isLoading && (
               <div className="hidden md:flex items-center gap-2">
                 {isAuthenticated && user ? (
                   <DropdownMenu>
@@ -283,6 +280,7 @@ export function Navbar() {
       </header>
 
       <MobileMenu
+        key={pathname}
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
         isAuthenticated={isAuthenticated}

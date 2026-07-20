@@ -28,7 +28,13 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? ROUTES.dashboard;
+  const rawCallback = searchParams.get("callbackUrl");
+  // Ensure callbackUrl is a relative path to prevent open-redirect attacks
+  const callbackUrl =
+    rawCallback && rawCallback.startsWith("/")
+      ? rawCallback
+      : ROUTES.dashboard;
+
   const [showPassword, setShowPassword] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
@@ -38,40 +44,62 @@ export function LoginForm() {
     formState: { errors, isSubmitting },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: {
+      email: "",
+      password: "",
+      rememberMe: false,
+    },
   });
 
   async function onSubmit(values: LoginFormValues) {
-    await signIn.email(
-      {
+    const toastId = toast.loading("Signing in...");
+    try {
+      const { error } = await signIn.email({
         email: values.email,
         password: values.password,
         rememberMe: values.rememberMe ?? false,
-      },
-      {
-        onSuccess: () => {
-          toast.success("Welcome back!");
-          router.push(callbackUrl);
-          router.refresh();
-        },
-        onError: (ctx) => {
-          toast.error(ctx.error.message ?? "Invalid credentials. Please try again.");
-        },
+      });
+
+      if (error) {
+        toast.error(error.message ?? "Invalid credentials. Please try again.", {
+          id: toastId,
+        });
+        return;
       }
-    );
+
+      toast.success("Welcome back!", { id: toastId });
+      router.push(callbackUrl);
+      router.refresh();
+    } catch {
+      toast.error("An unexpected error occurred. Please try again.", {
+        id: toastId,
+      });
+    }
   }
 
   async function handleGoogleSignIn() {
+    if (isGoogleLoading) return;
     setIsGoogleLoading(true);
-    await signIn.social(
-      { provider: "google", callbackURL: callbackUrl },
-      {
-        onError: (ctx) => {
-          toast.error(ctx.error.message ?? "Google sign in failed");
-          setIsGoogleLoading(false);
-        },
+    const toastId = toast.loading("Redirecting to Google...");
+
+    try {
+      const { error } = await signIn.social({
+        provider: "google",
+        callbackURL: callbackUrl,
+      });
+
+      if (error) {
+        toast.error(error.message ?? "Google sign in failed", {
+          id: toastId,
+        });
+        setIsGoogleLoading(false);
+      } else {
+        toast.dismiss(toastId);
       }
-    );
+    } catch {
+      toast.error("Google sign in failed. Please try again.", { id: toastId });
+      setIsGoogleLoading(false);
+    }
   }
 
   return (
@@ -89,11 +117,17 @@ export function LoginForm() {
         onClick={handleGoogleSignIn}
         disabled={isGoogleLoading || isSubmitting}
         id="google-signin-btn"
+        aria-label="Continue with Google"
       >
         {isGoogleLoading ? (
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
         ) : (
-          <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
+          <svg
+            className="h-4 w-4"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            focusable="false"
+          >
             <path
               d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
               fill="#4285F4"
@@ -126,8 +160,12 @@ export function LoginForm() {
         </div>
       </div>
 
-      {/* Email / Password Form */}
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+        className="space-y-4"
+        aria-label="Sign in form"
+      >
         {/* Email */}
         <div className="space-y-1.5">
           <Label htmlFor="login-email">Email address</Label>
@@ -142,13 +180,17 @@ export function LoginForm() {
               autoComplete="email"
               placeholder="you@example.com"
               className={cn("pl-10", errors.email && "border-destructive")}
-              {...register("email")}
               aria-describedby={errors.email ? "login-email-error" : undefined}
               aria-invalid={!!errors.email}
+              {...register("email")}
             />
           </div>
           {errors.email && (
-            <p id="login-email-error" className="text-xs text-destructive" role="alert">
+            <p
+              id="login-email-error"
+              className="text-xs text-destructive"
+              role="alert"
+            >
               {errors.email.message}
             </p>
           )}
@@ -160,8 +202,11 @@ export function LoginForm() {
             <Label htmlFor="login-password">Password</Label>
             <button
               type="button"
-              className="text-xs text-primary hover:underline"
-              onClick={() => toast.info("Password reset coming soon")}
+              className="text-xs text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+              id="forgot-password-btn"
+              onClick={() =>
+                toast.info("Password reset coming soon. Contact support.")
+              }
             >
               Forgot password?
             </button>
@@ -176,29 +221,54 @@ export function LoginForm() {
               type={showPassword ? "text" : "password"}
               autoComplete="current-password"
               placeholder="••••••••"
-              className={cn("pl-10 pr-10", errors.password && "border-destructive")}
-              {...register("password")}
-              aria-describedby={errors.password ? "login-password-error" : undefined}
+              className={cn(
+                "pl-10 pr-10",
+                errors.password && "border-destructive"
+              )}
+              aria-describedby={
+                errors.password ? "login-password-error" : undefined
+              }
               aria-invalid={!!errors.password}
+              {...register("password")}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? (
-                <EyeOff className="h-4 w-4" />
+                <EyeOff className="h-4 w-4" aria-hidden="true" />
               ) : (
-                <Eye className="h-4 w-4" />
+                <Eye className="h-4 w-4" aria-hidden="true" />
               )}
             </button>
           </div>
           {errors.password && (
-            <p id="login-password-error" className="text-xs text-destructive" role="alert">
+            <p
+              id="login-password-error"
+              className="text-xs text-destructive"
+              role="alert"
+            >
               {errors.password.message}
             </p>
           )}
+        </div>
+
+        {/* Remember Me */}
+        <div className="flex items-center gap-2">
+          <input
+            id="remember-me"
+            type="checkbox"
+            className="h-4 w-4 rounded border-border text-primary focus:ring-primary cursor-pointer accent-primary"
+            {...register("rememberMe")}
+          />
+          <Label
+            htmlFor="remember-me"
+            className="text-sm font-normal cursor-pointer select-none"
+          >
+            Remember me for 30 days
+          </Label>
         </div>
 
         {/* Submit */}

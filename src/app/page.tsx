@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, animate } from "framer-motion";
 import {
   Zap,
   Brain,
@@ -10,7 +10,6 @@ import {
   BarChart3,
   MessageSquare,
   Download,
-  Bell,
   ArrowRight,
   CheckCircle2,
   Star,
@@ -19,10 +18,10 @@ import {
   FileText,
   Sparkles,
   Users,
-  TrendingUp,
-  Shield,
+  History,
+  Globe,
+  ArrowDown,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Accordion,
@@ -76,89 +75,211 @@ function AnimatedSection({
   );
 }
 
+// ─── Animated Counter Component ───────────────────────────────────────────
+function Counter({
+  target,
+  suffix = "",
+  decimals = 0,
+}: {
+  target: number;
+  suffix?: string;
+  decimals?: number;
+}) {
+  const [count, setCount] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true });
+
+  useEffect(() => {
+    if (!inView) return;
+    const controls = animate(0, target, {
+      duration: 2,
+      ease: "easeOut",
+      onUpdate: (value) => {
+        setCount(value);
+      },
+    });
+    return () => controls.stop();
+  }, [target, inView]);
+
+  return (
+    <span ref={ref}>
+      {decimals === 0
+        ? Math.floor(count).toLocaleString()
+        : count.toFixed(decimals)}
+      {suffix}
+    </span>
+  );
+}
+
+// ─── Interactive Mock Report Builder (Hero Illustration) ────────────────
+function AnimatedHeroIllustration() {
+  const [step, setStep] = useState(0);
+  const stepsText = [
+    { label: "Define Project", value: "Neural Networks in Radiology Diagnostics" },
+    { label: "Configure AI", value: "Academic Style, Expert Difficulty, Case Study Method" },
+    { label: "Generating Report", value: "Drafting Section 3: Key Research Findings & APA Citations..." },
+    { label: "Report Saved", value: "Generation complete. Ready to export PDF, Markdown & JSON." },
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setStep((prev) => (prev + 1) % stepsText.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, [stepsText.length]);
+
+  return (
+    <div className="glass-card rounded-2xl p-5 shadow-2xl border text-left font-sans max-w-full">
+      <div className="flex items-center justify-between mb-4 pb-3 border-b border-border/40">
+        <div className="flex items-center gap-2">
+          <div className="h-3 w-3 rounded-full bg-red-500/80" aria-hidden="true" />
+          <div className="h-3 w-3 rounded-full bg-yellow-500/80" aria-hidden="true" />
+          <div className="h-3 w-3 rounded-full bg-green-500/80" aria-hidden="true" />
+        </div>
+        <div className="text-[10px] text-muted-foreground font-mono">
+          workflow_demo.json
+        </div>
+      </div>
+      <div className="space-y-4">
+        {/* Step Indicator */}
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] sm:text-xs font-bold text-primary uppercase tracking-wider">
+            Step {step + 1} of 4: {stepsText[step].label}
+          </span>
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary animate-pulse font-mono">
+            {step === 3 ? "Ready" : "Running"}
+          </span>
+        </div>
+
+        {/* Input area mockup */}
+        <div className="p-3.5 rounded-xl bg-muted/60 border space-y-2">
+          <div className="text-[9px] text-muted-foreground uppercase font-mono tracking-wider">Parameters Active</div>
+          <div className="text-xs sm:text-sm font-medium text-foreground min-h-[40px] transition-all duration-300 leading-relaxed">
+            {stepsText[step].value}
+          </div>
+        </div>
+
+        {/* Status bars */}
+        <div className="space-y-2">
+          <div className="flex justify-between text-xs">
+            <span className="text-muted-foreground">Gemini report generation</span>
+            <span className="font-semibold text-foreground font-mono">
+              {step === 0 && "15%"}
+              {step === 1 && "45%"}
+              {step === 2 && "80%"}
+              {step === 3 && "100%"}
+            </span>
+          </div>
+          <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+            <motion.div
+              className="h-full gradient-primary"
+              initial={{ width: "15%" }}
+              animate={{
+                width: step === 0 ? "15%" : step === 1 ? "45%" : step === 2 ? "80%" : "100%",
+              }}
+              transition={{ duration: 0.8, ease: "easeInOut" }}
+            />
+          </div>
+        </div>
+
+        {/* Section Tags */}
+        <div className="flex flex-wrap gap-1.5 pt-2">
+          <Badge variant={step >= 0 ? "default" : "secondary"} className="text-[9px] sm:text-[10px] transition-all">
+            1. Executive Summary {step >= 0 && "✓"}
+          </Badge>
+          <Badge variant={step >= 1 ? "default" : "secondary"} className="text-[9px] sm:text-[10px] transition-all">
+            2. Methodology {step >= 1 && "✓"}
+          </Badge>
+          <Badge variant={step >= 2 ? "default" : "secondary"} className="text-[9px] sm:text-[10px] transition-all">
+            3. Key Findings {step >= 2 && "✓"}
+          </Badge>
+          <Badge variant={step >= 3 ? "default" : "secondary"} className="text-[9px] sm:text-[10px] transition-all">
+            4. APA References {step >= 3 && "✓"}
+          </Badge>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Data ──────────────────────────────────────────────────────────────────
 const features = [
   {
-    icon: Brain,
-    title: "AI Report Generation",
+    icon: Sparkles,
+    title: "AI Research Generator",
     description:
-      "Generate publication-grade research reports with Gemini 2.5 Flash. Choose difficulty, style, methodology, and word count.",
-    badge: "Powered by Gemini",
-  },
-  {
-    icon: BookOpen,
-    title: "Research Management",
-    description:
-      "Organize projects by status, priority, and category. Track progress from Draft to Completed with full version history.",
-    badge: "Full CRUD",
+      "Generate publication-grade, professionally structured research reports with Gemini 2.5 Flash in seconds.",
+    badge: "Gemini 2.5 Flash",
   },
   {
     icon: MessageSquare,
-    title: "Smart AI Chat",
+    title: "AI Chat",
     description:
-      "Chat with a context-aware research assistant. Inject any research project for deeply relevant, academic responses.",
+      "Engage with an intelligent chat assistant built for academic contexts. Query, explore concepts, and get references.",
+    badge: "Interactive",
+  },
+  {
+    icon: Brain,
+    title: "Conversation Memory",
+    description:
+      "Seamless context tracking. The AI remembers preceding ideas, project parameters, and notes throughout your session.",
     badge: "Context-aware",
   },
   {
+    icon: BookOpen,
+    title: "Research Dashboard",
+    description:
+      "Organize all research projects in a clean grid. Track status, set low/high priorities, and change visibility easily.",
+    badge: "Full CRUD",
+  },
+  {
     icon: BarChart3,
-    title: "Analytics Dashboard",
+    title: "Analytics",
     description:
-      "Visualize your research activity with Recharts-powered graphs. Track tokens, reports, and productivity over time.",
-    badge: "Real-time",
+      "Visualize research activities, token counts, and generation counts over daily, weekly, or monthly periods.",
+    badge: "Visual Graphs",
   },
   {
-    icon: Download,
-    title: "Export & Share",
+    icon: History,
+    title: "Research History",
     description:
-      "Export research in JSON, Markdown, or PDF format. Share public projects with the research community.",
-    badge: "3 Formats",
-  },
-  {
-    icon: Bell,
-    title: "Smart Notifications",
-    description:
-      "Get notified when AI reports complete, chats start, and system events occur. Track reads and manage your inbox.",
-    badge: "In-app",
-  },
-];
-
-const steps = [
-  {
-    number: "01",
-    icon: Search,
-    title: "Define Your Research",
-    description:
-      "Create a research project with title, category, field, and objectives. Set visibility to public or private.",
-  },
-  {
-    number: "02",
-    icon: Sparkles,
-    title: "Generate with AI",
-    description:
-      "Configure the AI parameters — topic, difficulty, methodology, writing style — and let Gemini generate your report.",
-  },
-  {
-    number: "03",
-    icon: FileText,
-    title: "Review & Export",
-    description:
-      "Review the structured 8-section report with executive summary, findings, and APA references. Export in your format.",
+      "Maintain a robust, version-controlled history of reports. Access drafts, past revisions, and export options.",
+    badge: "Versioned",
   },
 ];
 
 const workflowSteps = [
-  { label: "Create Project", color: "bg-primary", icon: BookOpen },
-  { label: "Configure AI", color: "bg-secondary", icon: Brain },
-  { label: "Generate Report", color: "bg-accent", icon: Sparkles },
-  { label: "Review & Edit", color: "bg-primary", icon: FileText },
-  { label: "Export & Share", color: "bg-secondary", icon: Download },
+  {
+    number: "01",
+    icon: Search,
+    title: "Create Research",
+    description: "Start by entering your topic details, priority parameters, and visibility settings.",
+  },
+  {
+    number: "02",
+    icon: Sparkles,
+    title: "Generate AI",
+    description: "Specify writing style, difficulty level, and methodology, then let Gemini draft your report.",
+  },
+  {
+    number: "03",
+    icon: FileText,
+    title: "Review",
+    description: "Read the structured sections, evaluate generated citations, and edit sections inline.",
+  },
+  {
+    number: "04",
+    icon: Download,
+    title: "Save",
+    description: "Save final drafts to your dashboard, download in Markdown, PDF, or JSON, and share.",
+  },
 ];
 
 const stats = [
-  { value: "50K+", label: "Reports Generated", icon: FileText, color: "text-primary" },
-  { value: "10K+", label: "Active Researchers", icon: Users, color: "text-secondary" },
-  { value: "98%", label: "Accuracy Rate", icon: TrendingUp, color: "text-accent" },
-  { value: "256-bit", label: "Data Encryption", icon: Shield, color: "text-primary" },
+  { target: 54200, suffix: "+", label: "Research Generated", icon: FileText, color: "text-primary" },
+  { target: 1.2, suffix: "M+", decimals: 1, label: "AI Responses", icon: Sparkles, color: "text-secondary" },
+  { target: 15800, suffix: "+", label: "Active Users", icon: Users, color: "text-accent" },
+  { target: 120, suffix: "+", label: "Countries", icon: Globe, color: "text-primary" },
 ];
 
 const testimonials = [
@@ -190,28 +311,28 @@ const testimonials = [
 
 const faqs = [
   {
-    q: "What AI model powers the report generation?",
-    a: "ResearchPilot uses Google Gemini 2.5 Flash — Google's fastest and most capable model — for both report generation and the interactive chat assistant.",
+    q: "How does the AI Research Generator work?",
+    a: "Specify your research topic, target academic level, writing style, and research methodology. Our platform uses Google Gemini 2.5 Flash to write structured, multi-section reports with citations.",
   },
   {
-    q: "How long does it take to generate a research report?",
-    a: "Report generation typically takes 15–45 seconds depending on the requested word count and complexity. You'll receive a notification when it's ready.",
+    q: "What AI model is used for generating reports?",
+    a: "ResearchPilot is powered by Google Gemini 2.5 Flash, providing state-of-the-art inference speeds, deep context reasoning, and excellent structured writing performance.",
   },
   {
-    q: "Can I export reports in PDF format?",
-    a: "Yes. Every research report can be exported as JSON, Markdown, or a formatted PDF. PDF exports are professionally structured with a title page and section headings.",
+    q: "Can I chat directly with my research project context?",
+    a: "Yes. The context-aware chat assistant allows you to import any of your projects directly into the conversation stream to generate hyper-contextualized research suggestions.",
   },
   {
-    q: "Is my research data private?",
-    a: "Absolutely. Research projects default to Private. Only projects you explicitly set to Public are visible to other users. Your data is encrypted at rest.",
+    q: "How does the Conversation Memory feature work?",
+    a: "The chat assistant automatically retains references, messages, and key facts across the conversation history so you don't have to re-explain context at each step.",
   },
   {
-    q: "What are the AI generation rate limits?",
-    a: "To ensure fair usage, AI report generation is limited to 5 requests per 15 minutes. Chat messages allow up to 30 per 15 minutes.",
+    q: "What export formats are supported?",
+    a: "You can download any generated research project in three industry-standard configurations: PDF (publication-ready design), Markdown (for rich text editors), or JSON (for data integrations).",
   },
   {
-    q: "Do I need a credit card to get started?",
-    a: "No. Create your account for free and start generating AI research reports immediately. No credit card required.",
+    q: "Are there limits on how many reports I can generate?",
+    a: "To ensure fair usage and robust API response rates, accounts are set to a baseline rate limit of 5 reports per 15 minutes and 30 chat requests per 15 minutes.",
   },
 ];
 
@@ -319,41 +440,12 @@ export default function HomePage() {
 
         {/* Floating preview card */}
         <motion.div
-          className="relative z-10 mt-16 w-full max-w-3xl mx-auto px-4"
+          className="relative z-10 mt-16 w-full max-w-2xl mx-auto px-4"
           initial={{ opacity: 0, y: 48 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
         >
-          <div className="glass-card rounded-2xl p-5 shadow-2xl border">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="h-3 w-3 rounded-full bg-red-400" aria-hidden="true" />
-              <div className="h-3 w-3 rounded-full bg-yellow-400" aria-hidden="true" />
-              <div className="h-3 w-3 rounded-full bg-green-400" aria-hidden="true" />
-              <div className="flex-1 mx-3 h-6 rounded-md bg-muted flex items-center px-3">
-                <span className="text-xs text-muted-foreground">
-                  ResearchPilot AI — Generating report...
-                </span>
-              </div>
-            </div>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="h-8 w-8 rounded-lg gradient-primary flex items-center justify-center shrink-0">
-                  <Brain className="h-4 w-4 text-white" aria-hidden="true" />
-                </div>
-                <div className="flex-1 space-y-2">
-                  <div className="h-3.5 w-3/4 rounded-full bg-muted animate-shimmer" />
-                  <div className="h-3 w-full rounded-full bg-muted animate-shimmer" />
-                  <div className="h-3 w-5/6 rounded-full bg-muted animate-shimmer" />
-                  <div className="h-3 w-2/3 rounded-full bg-muted animate-shimmer" />
-                </div>
-              </div>
-              <div className="flex gap-2 mt-3">
-                <Badge variant="secondary" className="text-xs">Executive Summary ✓</Badge>
-                <Badge variant="secondary" className="text-xs">Methodology ✓</Badge>
-                <Badge variant="secondary" className="text-xs">Key Findings...</Badge>
-              </div>
-            </div>
-          </div>
+          <AnimatedHeroIllustration />
         </motion.div>
       </section>
 
@@ -424,165 +516,82 @@ export default function HomePage() {
       </AnimatedSection>
 
       {/* ══════════════════════════════════════════════════════════════════ */}
-      {/* 3. HOW IT WORKS SECTION                                            */}
+      {/* 3. RESEARCH WORKFLOW SECTION                                       */}
       {/* ══════════════════════════════════════════════════════════════════ */}
       <AnimatedSection
         id="how-it-works"
-        className="section-padding"
-        aria-label="How it works"
+        className="section-padding bg-muted/30"
+        aria-label="Research workflow"
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <motion.div variants={fadeUp} className="text-center mb-14 space-y-4">
+          <motion.div variants={fadeUp} className="text-center mb-16 space-y-4">
             <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5">
-              Simple Process
+              Streamlined Pipeline
             </Badge>
             <h2 className="heading-lg text-foreground">
-              Research in{" "}
-              <span className="gradient-text">Three Steps</span>
+              Research <span className="gradient-text">Workflow</span>
             </h2>
             <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-              From idea to publication-ready report in minutes, not weeks.
+              A structured, four-step timeline from initial creation to final output.
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-            {/* Connector line */}
-            <div
-              className="hidden md:block absolute top-14 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-primary/50 via-secondary/50 to-accent/50"
-              aria-hidden="true"
-            />
-
-            {steps.map((step, i) => {
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative items-start">
+            {workflowSteps.map((step, i) => {
               const Icon = step.icon;
+              const isLast = i === workflowSteps.length - 1;
               return (
-                <motion.div
-                  key={step.number}
-                  variants={fadeUp}
-                  custom={i}
-                  className="flex flex-col items-center text-center gap-4"
-                >
-                  <div className="relative">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl gradient-primary shadow-lg shadow-primary/25">
-                      <Icon className="h-7 w-7 text-white" aria-hidden="true" />
+                <div key={step.number} className="relative flex flex-col items-center">
+                  <motion.div
+                    variants={fadeUp}
+                    custom={i}
+                    className="flex flex-col items-center text-center gap-4 group relative z-10 w-full"
+                  >
+                    <div className="relative">
+                      <div className="flex h-16 w-16 items-center justify-center rounded-2xl gradient-primary shadow-lg shadow-primary/25 group-hover:scale-105 transition-transform duration-300">
+                        <Icon className="h-7 w-7 text-white" aria-hidden="true" />
+                      </div>
+                      <div className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-foreground text-background text-xs font-bold font-mono">
+                        {step.number}
+                      </div>
                     </div>
-                    <div className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-foreground text-background text-xs font-bold">
-                      {i + 1}
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-semibold text-foreground">
+                        {step.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto">
+                        {step.description}
+                      </p>
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-xs font-mono text-muted-foreground tracking-widest">
-                      {step.number}
-                    </p>
-                    <h3 className="text-lg font-semibold text-foreground">
-                      {step.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto">
-                      {step.description}
-                    </p>
-                  </div>
-                </motion.div>
+                  </motion.div>
+
+                  {/* Connectors */}
+                  {!isLast && (
+                    <>
+                      {/* Desktop connector arrow (right) */}
+                      <div className="hidden md:flex absolute top-8 left-[calc(50%+40px)] w-[calc(100%-80px)] items-center justify-center pointer-events-none" aria-hidden="true">
+                        <ArrowRight className="h-5 w-5 text-muted-foreground/50 animate-pulse" />
+                      </div>
+                      {/* Mobile connector arrow (down) */}
+                      <div className="md:hidden flex my-6 items-center justify-center pointer-events-none" aria-hidden="true">
+                        <ArrowDown className="h-5 w-5 text-muted-foreground/50 animate-pulse" />
+                      </div>
+                    </>
+                  )}
+                </div>
               );
             })}
           </div>
 
-          <motion.div variants={fadeUp} className="mt-12 text-center">
+          <motion.div variants={fadeUp} className="mt-16 text-center">
             <Link
               href={ROUTES.register}
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg gradient-primary text-white font-semibold hover:opacity-90 shadow-lg shadow-primary/25 transition-opacity"
               id="how-it-works-cta"
             >
-              Get Started Now
+              Start Your First Project
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
-          </motion.div>
-        </div>
-      </AnimatedSection>
-
-      {/* ══════════════════════════════════════════════════════════════════ */}
-      {/* 4. RESEARCH WORKFLOW SECTION                                       */}
-      {/* ══════════════════════════════════════════════════════════════════ */}
-      <AnimatedSection
-        className="section-padding bg-muted/30"
-        aria-label="Research workflow"
-      >
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <motion.div variants={fadeUp} className="text-center mb-14 space-y-4">
-            <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5">
-              Streamlined Workflow
-            </Badge>
-            <h2 className="heading-lg text-foreground">
-              Your Research{" "}
-              <span className="gradient-text">Workflow</span>
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-xl mx-auto">
-              A structured pipeline from project creation to final export.
-            </p>
-          </motion.div>
-
-          {/* Pipeline visualization */}
-          <div className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-0 relative">
-            {workflowSteps.map((step, i) => {
-              const Icon = step.icon;
-              const isLast = i === workflowSteps.length - 1;
-              return (
-                <motion.div
-                  key={step.label}
-                  variants={scaleIn}
-                  custom={i}
-                  className="flex flex-col md:flex-row items-center"
-                >
-                  <div className="flex flex-col items-center gap-2 z-10">
-                    <div
-                      className={cn(
-                        "flex h-14 w-14 items-center justify-center rounded-2xl shadow-lg text-white",
-                        step.color
-                      )}
-                    >
-                      <Icon className="h-6 w-6" aria-hidden="true" />
-                    </div>
-                    <p className="text-xs font-semibold text-center text-foreground whitespace-nowrap">
-                      {step.label}
-                    </p>
-                  </div>
-                  {!isLast && (
-                    <div className="hidden md:flex items-center mx-3" aria-hidden="true">
-                      <div className="h-0.5 w-10 bg-border" />
-                      <ArrowRight className="h-4 w-4 text-muted-foreground -ml-1" />
-                    </div>
-                  )}
-                  {!isLast && (
-                    <div className="md:hidden h-6 w-0.5 bg-border my-1" aria-hidden="true" />
-                  )}
-                </motion.div>
-              );
-            })}
-          </div>
-
-          {/* Feature checklist */}
-          <motion.div
-            variants={staggerContainer}
-            className="mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-3xl mx-auto"
-          >
-            {[
-              "8-section structured reports",
-              "APA citations included",
-              "Configurable word count",
-              "Research context injection",
-              "Multi-format export",
-              "Regeneration history",
-            ].map((item) => (
-              <motion.div
-                key={item}
-                variants={fadeUp}
-                className="flex items-center gap-2.5 text-sm text-muted-foreground"
-              >
-                <CheckCircle2
-                  className="h-4 w-4 text-green-500 shrink-0"
-                  aria-hidden="true"
-                />
-                {item}
-              </motion.div>
-            ))}
           </motion.div>
         </div>
       </AnimatedSection>
@@ -621,8 +630,8 @@ export default function HomePage() {
                     <Icon className="h-6 w-6 text-white" aria-hidden="true" />
                   </div>
                   <div>
-                    <p className={cn("text-3xl font-extrabold tracking-tight", stat.color)}>
-                      {stat.value}
+                    <p className={cn("text-3xl font-extrabold tracking-tight font-mono", stat.color)}>
+                      <Counter target={stat.target} suffix={stat.suffix} decimals={stat.decimals || 0} />
                     </p>
                     <p className="text-sm text-muted-foreground mt-0.5">{stat.label}</p>
                   </div>

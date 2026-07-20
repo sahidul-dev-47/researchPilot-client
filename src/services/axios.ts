@@ -1,17 +1,19 @@
 import axios from "axios";
-import { API_BASE_URL } from "@/constants";
+import { APP_URL } from "@/constants";
 
 /**
  * Shared Axios instance for all ResearchPilot API calls.
  *
- * - baseURL points to the Express 5 backend (port 5000)
+ * - baseURL points to the Next.js frontend origin so that all requests
+ *   share the same cookie scope as the auth client.
+ * - Next.js rewrites proxy /api/* to the Express backend.
  * - withCredentials: true ensures session cookies are sent with every request
  *   (required by better-auth cookie-based auth)
  * - Interceptor unwraps the nested `data.data` so callers receive the
  *   actual payload directly, not the ApiResponse envelope.
  */
 const apiClient = axios.create({
-  baseURL: `${API_BASE_URL}/api`,
+  baseURL: `${APP_URL}/api`,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",

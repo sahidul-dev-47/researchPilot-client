@@ -1,10 +1,12 @@
+"use client";
 import Link from "next/link";
 import { Home, ArrowLeft } from "lucide-react";
 
-export const metadata = {
-  title: "404 — Page Not Found",
-  description: "The page you are looking for does not exist.",
-};
+// Metadata cannot be exported from a client-side component in Next.js App Router
+// export const metadata = {
+//   title: "404 — Page Not Found",
+//   description: "The page you are looking for does not exist.",
+// };
 
 export default function NotFound() {
   return (

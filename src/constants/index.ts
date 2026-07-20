@@ -19,6 +19,7 @@ export const ROUTES = {
   chat: "/chat",
   profile: "/profile",
   settings: "/settings",
+  unauthorized: "/unauthorized",
 } as const;
 
 // ─── Public nav links ─────────────────────────────────────────────────────

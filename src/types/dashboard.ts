@@ -1,40 +1,29 @@
+import type { Research } from "./research";
+import type { Conversation } from "./chat";
+
 // ─── Dashboard Overview ───────────────────────────────────────────────────
 export interface DashboardOverview {
-  totalResearchProjects: number;
-  totalAIReports: number;
-  totalConversations: number;
-  totalTokensUsed: number;
-  recentResearch: RecentResearchItem[];
-  recentAIReports: RecentAIReportItem[];
-}
-
-export interface RecentResearchItem {
-  _id: string;
-  title: string;
-  status: string;
-  createdAt: string;
-}
-
-export interface RecentAIReportItem {
-  _id: string;
-  generatedTitle: string;
-  model: string;
-  tokensUsed: number;
-  createdAt: string;
+  stats: {
+    totalResearch: number;
+    totalAIGenerations: number;
+    totalConversations: number;
+  };
+  aiUsage: {
+    totalTokens: number;
+    averageTimeMs: number;
+    totalGenerations: number;
+  };
+  recentResearch: Research[];
+  recentChats: Conversation[];
 }
 
 // ─── Analytics Range ──────────────────────────────────────────────────────
 export type AnalyticsRange = "daily" | "weekly" | "monthly" | "yearly";
 
-// ─── Analytics Data Point ─────────────────────────────────────────────────
-export interface AnalyticsDataPoint {
-  date: string;
+// ─── Analytics Data Point (matches backend AnalyticsBucket) ───────────────
+export interface AnalyticsBucket {
+  label: string;
   research: number;
-  aiReports: number;
-  messages: number;
-}
-
-export interface AnalyticsData {
-  range: AnalyticsRange;
-  data: AnalyticsDataPoint[];
+  aiGenerations: number;
+  chats: number;
 }

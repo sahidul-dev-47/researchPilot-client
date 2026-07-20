@@ -53,36 +53,57 @@ export function RegisterForm() {
   });
 
   async function onSubmit(values: RegisterFormValues) {
-    await signUp.email(
-      {
+    const toastId = toast.loading("Creating your account...");
+    try {
+      const { error } = await signUp.email({
         name: values.name,
         email: values.email,
         password: values.password,
-      },
-      {
-        onSuccess: () => {
-          toast.success("Account created! Welcome to ResearchPilot.");
-          router.push(ROUTES.dashboard);
-          router.refresh();
-        },
-        onError: (ctx) => {
-          toast.error(ctx.error.message ?? "Registration failed. Please try again.");
-        },
+      });
+
+      if (error) {
+        toast.error(
+          error.message ?? "Registration failed. Please try again.",
+          { id: toastId }
+        );
+        return;
       }
-    );
+
+      toast.success("Account created! Welcome to ResearchPilot.", {
+        id: toastId,
+      });
+      router.push(ROUTES.dashboard);
+      router.refresh();
+    } catch {
+      toast.error("An unexpected error occurred. Please try again.", {
+        id: toastId,
+      });
+    }
   }
 
   async function handleGoogleSignIn() {
+    if (isGoogleLoading) return;
     setIsGoogleLoading(true);
-    await signIn.social(
-      { provider: "google", callbackURL: ROUTES.dashboard },
-      {
-        onError: (ctx) => {
-          toast.error(ctx.error.message ?? "Google sign in failed");
-          setIsGoogleLoading(false);
-        },
+    const toastId = toast.loading("Redirecting to Google...");
+
+    try {
+      const { error } = await signIn.social({
+        provider: "google",
+        callbackURL: ROUTES.dashboard,
+      });
+
+      if (error) {
+        toast.error(error.message ?? "Google sign in failed", {
+          id: toastId,
+        });
+        setIsGoogleLoading(false);
+      } else {
+        toast.dismiss(toastId);
       }
-    );
+    } catch {
+      toast.error("Google sign in failed. Please try again.", { id: toastId });
+      setIsGoogleLoading(false);
+    }
   }
 
   return (
@@ -100,15 +121,33 @@ export function RegisterForm() {
         onClick={handleGoogleSignIn}
         disabled={isGoogleLoading || isSubmitting}
         id="google-signup-btn"
+        aria-label="Continue with Google"
       >
         {isGoogleLoading ? (
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
         ) : (
-          <svg className="h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+          <svg
+            className="h-4 w-4"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              fill="#4285F4"
+            />
+            <path
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              fill="#34A853"
+            />
+            <path
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+              fill="#FBBC05"
+            />
+            <path
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+              fill="#EA4335"
+            />
           </svg>
         )}
         Continue with Google
@@ -125,25 +164,37 @@ export function RegisterForm() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        noValidate
+        className="space-y-4"
+        aria-label="Create account form"
+      >
         {/* Name */}
         <div className="space-y-1.5">
           <Label htmlFor="register-name">Full name</Label>
           <div className="relative">
-            <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+            <User
+              className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+              aria-hidden="true"
+            />
             <Input
               id="register-name"
               type="text"
               autoComplete="name"
               placeholder="Jane Smith"
               className={cn("pl-10", errors.name && "border-destructive")}
-              {...register("name")}
               aria-describedby={errors.name ? "register-name-error" : undefined}
               aria-invalid={!!errors.name}
+              {...register("name")}
             />
           </div>
           {errors.name && (
-            <p id="register-name-error" className="text-xs text-destructive" role="alert">
+            <p
+              id="register-name-error"
+              className="text-xs text-destructive"
+              role="alert"
+            >
               {errors.name.message}
             </p>
           )}
@@ -153,20 +204,29 @@ export function RegisterForm() {
         <div className="space-y-1.5">
           <Label htmlFor="register-email">Email address</Label>
           <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+            <Mail
+              className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+              aria-hidden="true"
+            />
             <Input
               id="register-email"
               type="email"
               autoComplete="email"
               placeholder="you@example.com"
               className={cn("pl-10", errors.email && "border-destructive")}
-              {...register("email")}
-              aria-describedby={errors.email ? "register-email-error" : undefined}
+              aria-describedby={
+                errors.email ? "register-email-error" : undefined
+              }
               aria-invalid={!!errors.email}
+              {...register("email")}
             />
           </div>
           {errors.email && (
-            <p id="register-email-error" className="text-xs text-destructive" role="alert">
+            <p
+              id="register-email-error"
+              className="text-xs text-destructive"
+              role="alert"
+            >
               {errors.email.message}
             </p>
           )}
@@ -176,28 +236,44 @@ export function RegisterForm() {
         <div className="space-y-1.5">
           <Label htmlFor="register-password">Password</Label>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+            <Lock
+              className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+              aria-hidden="true"
+            />
             <Input
               id="register-password"
               type={showPassword ? "text" : "password"}
               autoComplete="new-password"
               placeholder="Min. 8 characters"
-              className={cn("pl-10 pr-10", errors.password && "border-destructive")}
-              {...register("password")}
-              aria-describedby={errors.password ? "register-password-error" : undefined}
+              className={cn(
+                "pl-10 pr-10",
+                errors.password && "border-destructive"
+              )}
+              aria-describedby={
+                errors.password ? "register-password-error" : undefined
+              }
               aria-invalid={!!errors.password}
+              {...register("password")}
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
-              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {showPassword ? (
+                <EyeOff className="h-4 w-4" aria-hidden="true" />
+              ) : (
+                <Eye className="h-4 w-4" aria-hidden="true" />
+              )}
             </button>
           </div>
           {errors.password && (
-            <p id="register-password-error" className="text-xs text-destructive" role="alert">
+            <p
+              id="register-password-error"
+              className="text-xs text-destructive"
+              role="alert"
+            >
               {errors.password.message}
             </p>
           )}
@@ -207,28 +283,46 @@ export function RegisterForm() {
         <div className="space-y-1.5">
           <Label htmlFor="register-confirm-password">Confirm password</Label>
           <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
+            <Lock
+              className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+              aria-hidden="true"
+            />
             <Input
               id="register-confirm-password"
               type={showConfirm ? "text" : "password"}
               autoComplete="new-password"
               placeholder="Re-enter password"
-              className={cn("pl-10 pr-10", errors.confirmPassword && "border-destructive")}
-              {...register("confirmPassword")}
-              aria-describedby={errors.confirmPassword ? "register-confirm-error" : undefined}
+              className={cn(
+                "pl-10 pr-10",
+                errors.confirmPassword && "border-destructive"
+              )}
+              aria-describedby={
+                errors.confirmPassword ? "register-confirm-error" : undefined
+              }
               aria-invalid={!!errors.confirmPassword}
+              {...register("confirmPassword")}
             />
             <button
               type="button"
               onClick={() => setShowConfirm(!showConfirm)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-              aria-label={showConfirm ? "Hide confirm password" : "Show confirm password"}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors focus-visible:outline-none"
+              aria-label={
+                showConfirm ? "Hide confirm password" : "Show confirm password"
+              }
             >
-              {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              {showConfirm ? (
+                <EyeOff className="h-4 w-4" aria-hidden="true" />
+              ) : (
+                <Eye className="h-4 w-4" aria-hidden="true" />
+              )}
             </button>
           </div>
           {errors.confirmPassword && (
-            <p id="register-confirm-error" className="text-xs text-destructive" role="alert">
+            <p
+              id="register-confirm-error"
+              className="text-xs text-destructive"
+              role="alert"
+            >
               {errors.confirmPassword.message}
             </p>
           )}
@@ -242,7 +336,10 @@ export function RegisterForm() {
         >
           {isSubmitting ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+              <Loader2
+                className="mr-2 h-4 w-4 animate-spin"
+                aria-hidden="true"
+              />
               Creating account...
             </>
           ) : (

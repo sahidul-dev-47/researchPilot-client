@@ -1,3 +1,4 @@
+"use client";
 import { type LucideIcon, Inbox } from "lucide-react";
 import { cn } from "@/lib/utils";
 

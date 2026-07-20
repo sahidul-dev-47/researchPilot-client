@@ -7,12 +7,12 @@ import { useState, useEffect } from "react";
  * Example: useMediaQuery("(max-width: 768px)")
  */
 export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(false);
+  const [matches, setMatches] = useState<boolean>(() =>
+    typeof window !== "undefined" ? window.matchMedia(query).matches : false
+  );
 
   useEffect(() => {
     const mediaQueryList = window.matchMedia(query);
-    setMatches(mediaQueryList.matches);
-
     const handler = (event: MediaQueryListEvent) => {
       setMatches(event.matches);
     };
