@@ -8,10 +8,13 @@ import { PROTECTED_PREFIXES, AUTH_PREFIXES, ROUTES, API_BASE_URL } from "@/const
  * separator (e.g. "better-auth.session_token"), with a "__Secure-" prefix
  * in production.
  */
-function getSessionToken(request: NextRequest): string | undefined {
+function hasAuthCookie(request: NextRequest): boolean {
+  const cookieHeader = request.headers.get("cookie");
+  if (!cookieHeader) return false;
   return (
-    request.cookies.get("better-auth.session_token")?.value ??
-    request.cookies.get("__Secure-better-auth.session_token")?.value
+    cookieHeader.includes("better-auth") ||
+    cookieHeader.includes("session") ||
+    request.cookies.getAll().length > 0
   );
 }
 
@@ -24,11 +27,10 @@ async function verifySession(cookieHeader: string): Promise<boolean> {
       headers: {
         cookie: cookieHeader,
       },
+      cache: "no-store",
     });
-    console.log(`[Middleware Verify] Status: ${response.status}`);
     if (!response.ok) return false;
     const data = await response.json();
-    console.log(`[Middleware Verify] Data:`, JSON.stringify(data));
     return !!(data && (data.session || data.user));
   } catch (error) {
     console.error("[Middleware] Session verification failed:", error);
@@ -36,9 +38,10 @@ async function verifySession(cookieHeader: string): Promise<boolean> {
   }
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const sessionToken = getSessionToken(request);
+  const cookieHeader = request.headers.get("cookie") || "";
+  const authPresent = hasAuthCookie(request);
 
   // ── Determine route protection ─────────────────────────────────────
   const isProtected = PROTECTED_PREFIXES.some((prefix) =>
@@ -54,18 +57,17 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // If token is missing, they are definitely unauthenticated
+  // Verify session if cookies are present
   let isAuthenticated = false;
-  if (sessionToken) {
-    const cookieHeader = request.headers.get("cookie") || "";
+  if (authPresent) {
     isAuthenticated = await verifySession(cookieHeader);
   }
 
-  console.log(
-    `[Middleware] Path: ${pathname} | Token: ${
-      sessionToken ? "Present" : "Missing"
-    } | Validated Auth: ${isAuthenticated}`
-  );
+ console.log(
+  `[Middleware] Path: ${pathname} | Cookie: ${
+    authPresent ? "Present" : "Missing"
+  } | Validated Auth: ${isAuthenticated}`
+);
 
   // ── Protect dashboard/app routes ─────────────────────────────────────
   if (isProtected && !isAuthenticated) {

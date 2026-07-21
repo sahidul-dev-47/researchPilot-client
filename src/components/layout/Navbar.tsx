@@ -31,6 +31,7 @@ import { signOut } from "@/lib/auth-client";
 import { PUBLIC_NAV_LINKS, AUTH_NAV_LINKS, ROUTES } from "@/constants";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { NotificationBell } from "@/features/notifications/components/NotificationBell";
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -166,6 +167,9 @@ export function Navbar() {
                 </AnimatePresence>
               </Button>
             )}
+
+            {/* Notification Bell (authenticated only) */}
+            {mounted && isAuthenticated && <NotificationBell />}
 
             {/* Auth section - Desktop */}
             {mounted && !isLoading && (

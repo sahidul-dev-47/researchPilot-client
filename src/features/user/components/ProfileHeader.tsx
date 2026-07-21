@@ -15,7 +15,8 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import type { User } from "@/types/user";
 
 interface ProfileHeaderProps {
@@ -71,12 +72,13 @@ export function ProfileHeader({
           </Avatar>
 
           <div className="flex items-center gap-2 pb-1">
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/profile/edit">
-                <Edit className="h-3.5 w-3.5 mr-1.5" aria-hidden="true" />
-                Edit Profile
-              </Link>
-            </Button>
+            <Link
+              href="/profile/edit"
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }), "cursor-pointer")}
+            >
+              <Edit className="h-3.5 w-3.5 mr-1.5" aria-hidden="true" />
+              Edit Profile
+            </Link>
           </div>
         </div>
 

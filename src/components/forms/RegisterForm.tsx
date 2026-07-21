@@ -87,16 +87,18 @@ export function RegisterForm() {
     const toastId = toast.loading("Redirecting to Google...");
 
     try {
-      const { error } = await signIn.social({
+      const res = await signIn.social({
         provider: "google",
         callbackURL: ROUTES.dashboard,
       });
 
-      if (error) {
-        toast.error(error.message ?? "Google sign in failed", {
+      if (res?.error) {
+        toast.error(res.error.message ?? "Google sign in failed", {
           id: toastId,
         });
         setIsGoogleLoading(false);
+      } else if (res?.data?.url) {
+        window.location.href = res.data.url;
       } else {
         toast.dismiss(toastId);
       }

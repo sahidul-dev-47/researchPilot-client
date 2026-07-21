@@ -10,6 +10,9 @@ import {
   removeFavoriteAI,
   addFavoriteChat,
   removeFavoriteChat,
+  getBookmarks,
+  addBookmark,
+  removeBookmark,
 } from "@/services/api/user.service";
 import { QUERY_KEYS } from "@/constants";
 import type { UpdateUserInput, UpdateSettingsInput, User } from "@/types/user";
@@ -131,3 +134,71 @@ export function useToggleFavoriteChat() {
     },
   });
 }
+
+// ─── Bookmarks Hooks ───────────────────────────────────────────────────────
+export function useBookmarks() {
+  return useQuery({
+    queryKey: QUERY_KEYS.bookmarks,
+    queryFn: getBookmarks,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+}
+
+export function useAddBookmark() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (researchId: string) => addBookmark(researchId),
+    onMutate: async (researchId) => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.me });
+      const previousUser = queryClient.getQueryData<User>(QUERY_KEYS.me);
+      if (previousUser) {
+        queryClient.setQueryData<User>(QUERY_KEYS.me, {
+          ...previousUser,
+          bookmarks: [...previousUser.bookmarks, researchId],
+        });
+      }
+      return { previousUser };
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(QUERY_KEYS.me, data);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.bookmarks });
+      toast.success("Bookmark added.");
+    },
+    onError: (error: Error, _, ctx) => {
+      if (ctx?.previousUser) {
+        queryClient.setQueryData(QUERY_KEYS.me, ctx.previousUser);
+      }
+      toast.error(error.message ?? "Failed to add bookmark.");
+    },
+  });
+}
+
+export function useRemoveBookmark() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (researchId: string) => removeBookmark(researchId),
+    onMutate: async (researchId) => {
+      await queryClient.cancelQueries({ queryKey: QUERY_KEYS.me });
+      const previousUser = queryClient.getQueryData<User>(QUERY_KEYS.me);
+      if (previousUser) {
+        queryClient.setQueryData<User>(QUERY_KEYS.me, {
+          ...previousUser,
+          bookmarks: previousUser.bookmarks.filter((id) => id !== researchId),
+        });
+      }
+      return { previousUser };
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(QUERY_KEYS.me, data);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.bookmarks });
+      toast.success("Bookmark removed.");
+    },
+    onError: (error: Error, _, ctx) => {
+      if (ctx?.previousUser) {
+        queryClient.setQueryData(QUERY_KEYS.me, ctx.previousUser);
+      }
+      toast.error(error.message ?? "Failed to remove bookmark.");
+    },
+  });
+}
+

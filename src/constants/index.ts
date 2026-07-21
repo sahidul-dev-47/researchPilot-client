@@ -19,6 +19,7 @@ export const ROUTES = {
   chat: "/chat",
   profile: "/profile",
   settings: "/settings",
+  notifications: "/notifications",
   unauthorized: "/unauthorized",
 } as const;
 
@@ -45,6 +46,7 @@ export const PROTECTED_PREFIXES = [
   "/chat",
   "/profile",
   "/settings",
+  "/notifications",
 ] as const;
 
 // ─── Auth route prefixes (redirect away when authenticated) ───────────────
