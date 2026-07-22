@@ -5,6 +5,8 @@ import type {
   GenerateResearchInput,
   RegenerateResearchInput,
   AIHistoryQueryParams,
+  DocIntelligenceResult,
+  ImageUnderstandingResult,
 } from "@/types/ai";
 
 // ─── POST /api/ai/generate ────────────────────────────────────────────────
@@ -14,6 +16,34 @@ export async function generateAIResearch(
   const response = await apiClient.post<ApiResponse<AIResearch>>(
     "/ai/generate",
     body
+  );
+  return response.data.data;
+}
+
+// ─── POST /api/ai/document-intelligence ──────────────────────────────────
+export async function analyzeDocument(
+  formData: FormData
+): Promise<DocIntelligenceResult> {
+  const response = await apiClient.post<ApiResponse<DocIntelligenceResult>>(
+    "/ai/document-intelligence",
+    formData,
+    {
+      headers: { "Content-Type": "multipart/form-data" },
+    }
+  );
+  return response.data.data;
+}
+
+// ─── POST /api/ai/image-understanding ─────────────────────────────────────
+export async function analyzeImage(
+  formData: FormData
+): Promise<ImageUnderstandingResult> {
+  const response = await apiClient.post<ApiResponse<ImageUnderstandingResult>>(
+    "/ai/image-understanding",
+    formData,
+    {
+      headers: { "Content-Type": "multipart/form-data" },
+    }
   );
   return response.data.data;
 }

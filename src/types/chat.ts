@@ -20,6 +20,10 @@ export interface ChatMessage {
   conversationId: string;
   role: ChatRole;
   message: string;
+  attachment?: {
+    fileName: string;
+    fileType: string;
+  };
   researchId?: string;
   tokens: number;
   createdAt: string;
@@ -31,6 +35,7 @@ export interface SendMessageInput {
   conversationId?: string;
   researchId?: string;
   regenerate?: boolean;
+  file?: File;
 }
 
 // ─── Send Message Response ────────────────────────────────────────────────

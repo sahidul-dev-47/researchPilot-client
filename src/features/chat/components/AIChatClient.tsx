@@ -84,9 +84,9 @@ export function AIChatClient({ initialConversationId }: AIChatClientProps) {
 
   // ── Send message ──────────────────────────────────────────────────────────
   const handleSend = useCallback(
-    (text: string) => {
+    (text: string, file?: File) => {
       const trimmed = text.trim();
-      if (!trimmed || isSending) return;
+      if ((!trimmed && !file) || isSending) return;
 
       setDraft("");
       setLastSuggestedQuestions([]);
@@ -97,7 +97,8 @@ export function AIChatClient({ initialConversationId }: AIChatClientProps) {
         userId: "",
         conversationId: activeConversationId ?? "",
         role: "User",
-        message: trimmed,
+        message: trimmed || `[Attached File: ${file?.name}]`,
+        attachment: file ? { fileName: file.name, fileType: file.type } : undefined,
         tokens: 0,
         createdAt: new Date().toISOString(),
       };
@@ -105,8 +106,9 @@ export function AIChatClient({ initialConversationId }: AIChatClientProps) {
 
       sendMsg(
         {
-          message: trimmed,
+          message: trimmed || `Please read and analyze the attached file: ${file?.name}`,
           conversationId: activeConversationId ?? undefined,
+          file,
         },
         {
           onSuccess: (data: SendMessageResponse) => {
@@ -275,7 +277,7 @@ export function AIChatClient({ initialConversationId }: AIChatClientProps) {
         <ChatInput
           value={draft}
           onChange={setDraft}
-          onSubmit={() => handleSend(draft)}
+          onSubmit={(file?: File) => handleSend(draft, file)}
           onClear={() => setDraft("")}
           isDisabled={false}
           isSending={isSending}

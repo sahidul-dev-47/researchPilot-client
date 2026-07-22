@@ -110,14 +110,14 @@ const FAQ_ITEMS: FaqItem[] = [
     id: "ai-1",
     question: "How do I generate an AI research report?",
     answer:
-      "Navigate to the AI Assistant section and click 'Generate Report'. Fill in the research title, topic, category, writing style, difficulty level, and research type, then submit. Gemini 2.5 Flash will generate a structured multi-section report in seconds.",
+      "Navigate to the AI Assistant section and click 'Generate Report'. Fill in the research title, topic, category, writing style, difficulty level, and research type, then submit. OpenAI will generate a structured multi-section report in seconds.",
     category: "ai",
   },
   {
     id: "ai-2",
     question: "What AI model does ResearchPilot use?",
     answer:
-      "ResearchPilot uses Google Gemini 2.5 Flash — Google's latest and most capable large-context AI model. It handles both research report generation (with APA citation formatting) and the interactive chat assistant.",
+      "ResearchPilot uses Google OpenAI — OpenAI's latest and most capable large-context AI model. It handles both research report generation (with APA citation formatting) and the interactive chat assistant.",
     category: "ai",
   },
   {

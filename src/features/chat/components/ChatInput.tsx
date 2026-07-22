@@ -4,18 +4,20 @@ import {
   useRef,
   useEffect,
   useCallback,
+  useState,
   type KeyboardEvent,
   type FormEvent,
+  type ChangeEvent,
 } from "react";
-import { motion } from "framer-motion";
-import { Send, Trash2, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Send, Trash2, Loader2, Paperclip, X, FileText, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 interface ChatInputProps {
   value: string;
   onChange: (value: string) => void;
-  onSubmit: () => void;
+  onSubmit: (file?: File) => void;
   onClear: () => void;
   isDisabled?: boolean;
   isSending?: boolean;
@@ -23,10 +25,8 @@ interface ChatInputProps {
 }
 
 /**
- * Auto-resizing multiline textarea chat input.
- * - Enter sends message (Shift+Enter = newline).
- * - Auto-resizes up to ~6 lines.
- * - Clear button clears draft.
+ * Auto-resizing multiline textarea chat input with File & Document upload support.
+ * Allows attaching PDF, DOCX, TXT, and Images directly into chat.
  */
 export function ChatInput({
   value,
@@ -35,9 +35,11 @@ export function ChatInput({
   onClear,
   isDisabled = false,
   isSending = false,
-  placeholder = "Ask ResearchPilot AI anything…",
+  placeholder = "Ask ResearchPilot AI anything or upload a document…",
 }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [attachedFile, setAttachedFile] = useState<File | null>(null);
 
   // Auto-resize: reset to auto then set to scrollHeight
   const resize = useCallback(() => {
@@ -52,30 +54,73 @@ export function ChatInput({
     resize();
   }, [value, resize]);
 
+  function handleFileSelect(e: ChangeEvent<HTMLInputElement>) {
+    if (e.target.files && e.target.files[0]) {
+      setAttachedFile(e.target.files[0]);
+    }
+  }
+
   function handleKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      if (value.trim() && !isDisabled && !isSending) {
-        onSubmit();
+      if ((value.trim() || attachedFile) && !isDisabled && !isSending) {
+        onSubmit(attachedFile || undefined);
+        setAttachedFile(null);
       }
     }
   }
 
-  function handleSubmit(e: FormEvent) {
+  function handleSubmitForm(e: FormEvent) {
     e.preventDefault();
-    if (value.trim() && !isDisabled && !isSending) {
-      onSubmit();
+    if ((value.trim() || attachedFile) && !isDisabled && !isSending) {
+      onSubmit(attachedFile || undefined);
+      setAttachedFile(null);
     }
   }
 
-  const canSend = value.trim().length > 0 && !isDisabled && !isSending;
+  const canSend = (value.trim().length > 0 || attachedFile !== null) && !isDisabled && !isSending;
 
   return (
     <form
-      onSubmit={handleSubmit}
-      className="px-4 py-3 border-t bg-background"
+      onSubmit={handleSubmitForm}
+      className="px-4 py-3 border-t bg-background space-y-2"
       aria-label="Chat message input"
     >
+      {/* Attached File Preview Badge */}
+      <AnimatePresence>
+        {attachedFile && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            className="flex items-center justify-between p-2 rounded-xl bg-primary/10 border border-primary/20 text-xs"
+          >
+            <div className="flex items-center gap-2 truncate">
+              {attachedFile.type.startsWith("image/") ? (
+                <ImageIcon className="h-4 w-4 text-purple-500 shrink-0" />
+              ) : (
+                <FileText className="h-4 w-4 text-blue-500 shrink-0" />
+              )}
+              <span className="font-semibold text-foreground truncate max-w-[240px]">
+                {attachedFile.name}
+              </span>
+              <span className="text-muted-foreground text-[10px]">
+                ({(attachedFile.size / 1024 / 1024).toFixed(2)} MB)
+              </span>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 text-muted-foreground hover:text-destructive"
+              onClick={() => setAttachedFile(null)}
+            >
+              <X className="h-3.5 w-3.5" />
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div
         className={cn(
           "flex items-end gap-2 rounded-2xl border bg-card px-3 py-2 shadow-sm",
@@ -83,6 +128,30 @@ export function ChatInput({
           "transition-all duration-150"
         )}
       >
+        {/* Hidden File Input */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          accept=".pdf,.docx,.txt,.png,.jpg,.jpeg,.webp"
+          onChange={handleFileSelect}
+          className="hidden"
+          id="chat-file-upload-input"
+        />
+
+        {/* Paperclip Upload Button */}
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isDisabled || isSending}
+          className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-muted/80 pb-1"
+          aria-label="Attach document or image"
+          id="chat-attach-btn"
+        >
+          <Paperclip className="h-4 w-4" />
+        </Button>
+
         {/* Textarea */}
         <textarea
           ref={textareaRef}
@@ -148,7 +217,7 @@ export function ChatInput({
         className="mt-1.5 text-[10px] text-muted-foreground/60 text-center"
       >
         Press <kbd className="font-mono">Enter</kbd> to send ·{" "}
-        <kbd className="font-mono">Shift + Enter</kbd> for new line
+        <kbd className="font-mono">Shift + Enter</kbd> for new line · Attach PDF, DOCX, TXT or Images
       </p>
     </form>
   );

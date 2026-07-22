@@ -1,6 +1,5 @@
 /**
- * Utility to dynamically generate a clean, premium AI summary from full research description.
- * This simulates a professional Gemini AI response format on the client.
+ 
  */
 export function generateAISummary(fullDescription: string, title: string) {
   // Split description by sentence boundary

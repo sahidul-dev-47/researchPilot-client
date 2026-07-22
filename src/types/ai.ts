@@ -40,3 +40,37 @@ export interface RegenerateResearchInput {
 export interface AIHistoryQueryParams extends PaginationParams, SortParam {
   searchTerm?: string;
 }
+
+// ─── AI Document Intelligence Result ──────────────────────────────────────
+export interface DocIntelligenceResult {
+  documentTitle: string;
+  fileType: string;
+  summary: string;
+  keyPoints: string[];
+  tables: string[];
+  actionItems: string[];
+  rawTextPreview?: string;
+  model: string;
+  tokensUsed: number;
+}
+
+// ─── AI Image Understanding Result ────────────────────────────────────────
+export type ImageAnalysisType =
+  | "general"
+  | "captioning"
+  | "object_recognition"
+  | "receipt_analysis"
+  | "plant_identification"
+  | "ui_explanation";
+
+export interface ImageUnderstandingResult {
+  title: string;
+  analysisType: ImageAnalysisType;
+  caption: string;
+  detailedAnalysis: string;
+  detectedItems: string[];
+  keyMetadata: Record<string, string>;
+  recommendations?: string[];
+  model: string;
+  tokensUsed: number;
+}

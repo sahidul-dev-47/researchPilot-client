@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Copy, CheckCheck, User } from "lucide-react";
+import { Copy, CheckCheck, User, FileText, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import { cn } from "@/lib/utils";
@@ -81,6 +81,16 @@ export function MessageBubble({
               : "rounded-bl-sm bg-card border text-foreground"
           )}
         >
+          {message.attachment && (
+            <div className="mb-2 p-2 rounded-xl bg-background/20 border border-current/20 flex items-center gap-2 text-xs">
+              {message.attachment.fileType.startsWith("image/") ? (
+                <ImageIcon className="h-4 w-4 shrink-0" />
+              ) : (
+                <FileText className="h-4 w-4 shrink-0" />
+              )}
+              <span className="font-semibold truncate">{message.attachment.fileName}</span>
+            </div>
+          )}
           {isUser ? (
             <p className="leading-relaxed whitespace-pre-wrap break-words">
               {message.message}

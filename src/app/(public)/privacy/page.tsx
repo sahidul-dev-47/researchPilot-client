@@ -6,7 +6,8 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Privacy Policy | ResearchPilot",
-  description: "Learn how ResearchPilot collects, uses, and protects your personal data and research content.",
+  description:
+    "Learn how ResearchPilot collects, uses, and protects your personal data and research content.",
 };
 
 const sections = [
@@ -77,8 +78,8 @@ const sections = [
     icon: Globe,
     content: [
       {
-        heading: "Google Gemini API",
-        text: "AI report generation and chat responses are powered by Google Gemini 2.5 Flash. Your research prompts are sent to Google's API under their enterprise data processing terms. Google does not retain your prompts for model training without explicit consent.",
+        heading: "Google OpenAI API",
+        text: "AI report generation and chat responses are powered by OpenAI. Your research prompts are sent to Google's API under their enterprise data processing terms. Google does not retain your prompts for model training without explicit consent.",
       },
       {
         heading: "Analytics",
@@ -136,17 +137,27 @@ export default function PrivacyPage() {
   return (
     <div className="flex flex-col">
       {/* Hero */}
-      <section className="relative pt-24 pb-16 border-b bg-muted/20 overflow-hidden" aria-label="Privacy Policy header">
-        <div className="pointer-events-none absolute inset-0 gradient-hero opacity-50" aria-hidden="true" />
+      <section
+        className="relative pt-24 pb-16 border-b bg-muted/20 overflow-hidden"
+        aria-label="Privacy Policy header"
+      >
+        <div
+          className="pointer-events-none absolute inset-0 gradient-hero opacity-50"
+          aria-hidden="true"
+        />
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-5">
-          <Badge variant="outline" className="px-4 py-1.5 text-sm border-primary/30 bg-primary/10 text-primary hover:bg-primary/10">
+          <Badge
+            variant="outline"
+            className="px-4 py-1.5 text-sm border-primary/30 bg-primary/10 text-primary hover:bg-primary/10"
+          >
             Last Updated: {lastUpdated}
           </Badge>
           <h1 className="heading-lg text-foreground font-extrabold">
             Privacy <span className="gradient-text">Policy</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
-            We are committed to protecting your privacy and being transparent about how we handle your data. Please read this policy carefully.
+            We are committed to protecting your privacy and being transparent
+            about how we handle your data. Please read this policy carefully.
           </p>
         </div>
       </section>
@@ -185,20 +196,31 @@ export default function PrivacyPage() {
           {sections.map((section) => {
             const Icon = section.icon;
             return (
-              <article key={section.id} id={section.id} aria-labelledby={`heading-${section.id}`}>
+              <article
+                key={section.id}
+                id={section.id}
+                aria-labelledby={`heading-${section.id}`}
+              >
                 <div className="flex items-center gap-3 mb-6 pb-4 border-b">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl gradient-primary shadow-sm">
                     <Icon className="h-5 w-5 text-white" aria-hidden="true" />
                   </div>
-                  <h2 id={`heading-${section.id}`} className="text-xl font-bold text-foreground">
+                  <h2
+                    id={`heading-${section.id}`}
+                    className="text-xl font-bold text-foreground"
+                  >
                     {section.title}
                   </h2>
                 </div>
                 <div className="space-y-5 pl-0 sm:pl-2">
                   {section.content.map((item) => (
                     <div key={item.heading} className="space-y-1.5">
-                      <h3 className="text-sm font-semibold text-foreground">{item.heading}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{item.text}</p>
+                      <h3 className="text-sm font-semibold text-foreground">
+                        {item.heading}
+                      </h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {item.text}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -213,11 +235,17 @@ export default function PrivacyPage() {
             </p>
             <p className="text-xs text-muted-foreground leading-relaxed">
               Contact our privacy team at{" "}
-              <a href="mailto:privacy@researchpilot.ai" className="text-primary hover:underline font-medium">
+              <a
+                href="mailto:privacy@researchpilot.ai"
+                className="text-primary hover:underline font-medium"
+              >
                 privacy@researchpilot.ai
               </a>{" "}
               or visit our{" "}
-              <Link href={ROUTES.contact} className="text-primary hover:underline font-medium">
+              <Link
+                href={ROUTES.contact}
+                className="text-primary hover:underline font-medium"
+              >
                 Contact page
               </Link>
               .

@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   keywords: [
     "AI research",
     "research management",
-    "Gemini AI",
+    "OpenAI",
     "academic research",
     "research assistant",
   ],

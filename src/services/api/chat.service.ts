@@ -13,6 +13,24 @@ import type {
 export async function sendMessage(
   body: SendMessageInput
 ): Promise<SendMessageResponse> {
+  if (body.file) {
+    const formData = new FormData();
+    formData.append("message", body.message);
+    if (body.conversationId) formData.append("conversationId", body.conversationId);
+    if (body.researchId) formData.append("researchId", body.researchId);
+    if (body.regenerate) formData.append("regenerate", "true");
+    formData.append("file", body.file);
+
+    const response = await apiClient.post<ApiResponse<SendMessageResponse>>(
+      "/chat",
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+    return response.data.data;
+  }
+
   const response = await apiClient.post<ApiResponse<SendMessageResponse>>(
     "/chat",
     body

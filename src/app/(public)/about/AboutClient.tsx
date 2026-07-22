@@ -34,7 +34,7 @@ const coreValues = [
   {
     icon: Sparkles,
     title: "Inference Velocity",
-    description: "Leveraging Google Gemini 2.5 Flash guarantees fast inference, processing long-context prompts and generating multi-section reports in seconds.",
+    description: "Leveraging Google OpenAI guarantees fast inference, processing long-context prompts and generating multi-section reports in seconds.",
   },
   {
     icon: Heart,
@@ -159,7 +159,7 @@ export default function AboutClient() {
               The challenge was twofold: language models were fast but prone to logical hallucinations and poor formatting, 
               while static databases were secure but sluggish and required manual assembly. We set out to bridge these gaps. 
               By designing a context-injection layer that seamlessly pairs active data models with the large-context capability 
-              of Gemini AI, we built a tool that provides structured, publication-grade frameworks.
+              of OpenAI, we built a tool that provides structured, publication-grade frameworks.
             </p>
             <p>
               Today, ResearchPilot supports thousands of researchers globally. Whether it is a graduate student structuring their 
@@ -181,7 +181,7 @@ export default function AboutClient() {
             className="space-y-6"
           >
             <h2 className="heading-lg text-foreground font-bold">
-              Powered by <span className="gradient-text">Gemini 2.5 Flash</span>
+              Powered by <span className="gradient-text">OpenAI</span>
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
               ResearchPilot couples modern frontend engineering with state-of-the-art AI. 
@@ -224,7 +224,7 @@ export default function AboutClient() {
               </div>
               <div className="flex justify-between border-b pb-2">
                 <span>Inference Engine</span>
-                <span className="text-foreground">Google Gemini 2.5 Flash API</span>
+                <span className="text-foreground">Google OpenAI API</span>
               </div>
               <div className="flex justify-between border-b pb-2">
                 <span>Styling / UI Component System</span>

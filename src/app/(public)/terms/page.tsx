@@ -32,7 +32,7 @@ const sections = [
     content: [
       {
         heading: "Platform Overview",
-        text: "ResearchPilot is an AI-powered research management platform that enables users to create, organize, and export academic and professional research projects. Core features include AI report generation via Google Gemini 2.5 Flash, an interactive AI chat assistant, and multi-format export (JSON, Markdown, PDF).",
+        text: "ResearchPilot is an AI-powered research management platform that enables users to create, organize, and export academic and professional research projects. Core features include AI report generation via Google OpenAI, an interactive AI chat assistant, and multi-format export (JSON, Markdown, PDF).",
       },
       {
         heading: "Service Availability",

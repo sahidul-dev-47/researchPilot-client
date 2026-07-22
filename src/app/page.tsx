@@ -162,7 +162,7 @@ function AnimatedHeroIllustration() {
         {/* Status bars */}
         <div className="space-y-2">
           <div className="flex justify-between text-xs">
-            <span className="text-muted-foreground">Gemini report generation</span>
+            <span className="text-muted-foreground">OpenAI report generation</span>
             <span className="font-semibold text-foreground font-mono">
               {step === 0 && "15%"}
               {step === 1 && "45%"}
@@ -208,8 +208,8 @@ const features = [
     icon: Sparkles,
     title: "AI Research Generator",
     description:
-      "Generate publication-grade, professionally structured research reports with Gemini 2.5 Flash in seconds.",
-    badge: "Gemini 2.5 Flash",
+      "Generate publication-grade, professionally structured research reports with OpenAI.",
+    badge: "GPT-4 Turbo",
   },
   {
     icon: MessageSquare,
@@ -259,7 +259,7 @@ const workflowSteps = [
     number: "02",
     icon: Sparkles,
     title: "Generate AI",
-    description: "Specify writing style, difficulty level, and methodology, then let Gemini draft your report.",
+    description: "Specify writing style, difficulty level, and methodology, then let OpenAI draft your report.",
   },
   {
     number: "03",
@@ -312,11 +312,11 @@ const testimonials = [
 const faqs = [
   {
     q: "How does the AI Research Generator work?",
-    a: "Specify your research topic, target academic level, writing style, and research methodology. Our platform uses Google Gemini 2.5 Flash to write structured, multi-section reports with citations.",
+    a: "Specify your research topic, target academic level, writing style, and research methodology. Our platform uses Google OpenAI to write structured, multi-section reports with citations.",
   },
   {
     q: "What AI model is used for generating reports?",
-    a: "ResearchPilot is powered by Google Gemini 2.5 Flash, providing state-of-the-art inference speeds, deep context reasoning, and excellent structured writing performance.",
+    a: "ResearchPilot is powered by Google OpenAI, providing state-of-the-art inference speeds, deep context reasoning, and excellent structured writing performance.",
   },
   {
     q: "Can I chat directly with my research project context?",
@@ -374,7 +374,7 @@ export default function HomePage() {
               variant="outline"
             >
               <Zap className="h-3.5 w-3.5" aria-hidden="true" />
-              Powered by Google Gemini 2.5 Flash
+              Powered by OpenAI
             </Badge>
           </motion.div>
 

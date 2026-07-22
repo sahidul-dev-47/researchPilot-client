@@ -261,7 +261,7 @@ export function ResearchDetailClient({ id }: { id: string }) {
                 <Sparkles className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="font-bold text-foreground text-lg">Gemini AI Project Summary</h3>
+                <h3 className="font-bold text-foreground text-lg">OpenAI Project Summary</h3>
                 <p className="text-xs text-muted-foreground">Automated summary &amp; highlight extraction</p>
               </div>
             </div>
